@@ -1,0 +1,16 @@
+{
+	"name": "lah-dev",
+	"version": "1.0.0",
+	"author": "Przemysław Dylewski <lahpolon.dev@gmail.com>",
+	"license": "MIT",
+	"scripts": {
+		"compile": "tsc && tsc --build tsconfig.es5.json",
+        "parcel": "tsc --build tsconfig.test.json && parcel test/index.html"
+	},
+	"devDependencies": {
+		"typescript": "^4.8.2"
+	},
+	"dependencies": {
+		"parcel": "^2.7.0"
+	}
+}

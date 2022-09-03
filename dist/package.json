@@ -1,0 +1,38 @@
+{
+	"name": "rateme-js",
+	"version": "0.0.1",
+	"description": "RateMe-js is a simple star rating component written in TypeScript.",
+	"main": "lib/es5/index.js",
+	"module": "lib/es6/index.js",
+	"sideEffects": false,
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/LaH-DeV/rateme-js.git"
+	},
+	"bugs": {
+		"url": "https://github.com/LaH-DeV/rateme-js/issues"
+	},
+	"homepage": "https://github.com/LaH-DeV/rateme-js/#readme",
+	"files": [
+		"lib",
+		"LICENSE",
+		"CHANGELOG.md",
+		"package.json",
+		"README.md"
+	],
+	"keywords": [
+		"javascript",
+		"typescript",
+		"rating",
+        "review",
+        "reviews",
+        "library",
+		"frontend",
+		"mark",
+		"star rating",
+		"stars",
+		"component"
+	],
+	"author": "Przemysław Dylewski <lahpolon.dev@gmail.com>",
+	"license": "MIT"
+}
