@@ -3,4 +3,7 @@ node_modules
 dist/*
 !dist/package.json
 .parcel-cache
-test/client.js
+!client-test
+client-test/*
+!client-test/index.html
+!client-test/client.ts

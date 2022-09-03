@@ -1,4 +1,5 @@
 import { RateMeSVG } from './rateme-svg';
+import { createStyle } from './rateme-styles';
 
 export interface RateMeConfig {
     maxValue: number;
@@ -10,6 +11,7 @@ export interface RateMeConfig {
     strokeColor: string;
     strokeStyle: string;
     withCancel: boolean;
+    customStyles?: string;
 }
 
 
@@ -23,7 +25,8 @@ export class RateMe implements RateMeConfig {
     readonly gradientSecond: string = "#f5f5f5";
     readonly strokeColor: string = "transparent";
     readonly strokeStyle: string = "stroke-opacity: 0.3;";
-    readonly specialCharacters: {array: string[]; use: boolean;} = {array: ["!", ".", "?", "#"], use: true};
+    readonly customStyles: string | undefined;
+    private readonly stylesId: string = "rateme-stylesheet";
     private readonly classes = {
         active: { emptyClass: "rateme-null-score", halfClass: "rateme-half-score", fullClass: "rateme-full-score" },
         nullish: { equalZero: "rateme-equal-zero-score", aboveZero: "rateme-above-zero-score" },
@@ -89,10 +92,15 @@ export class RateMe implements RateMeConfig {
                 this.withCancel = config.withCancel;
                 delete config.withCancel;
             }
+            if(config.customStyles != null && typeof config.customStyles === 'string') {
+                this.customStyles = config.customStyles;
+                delete config.customStyles;
+            }
             if(Object.keys(config).length > 0) {
                 console.warn("class RateMe: some of the given properties were incorrect and therefore not used: ", config);
             }
         }
+        this.prepareStyles();
         this.checkAndPushTemplate("rating");
         if(this.withCancel) {
             this.checkAndPushTemplate("cancel");
@@ -157,31 +165,19 @@ export class RateMe implements RateMeConfig {
             throw new TypeError(`class RateMe: Element found with id: ${id} has no supported children.`);
         }
     }
+    private prepareStyles(): void {
+        const styleInDOM = document.querySelector(`#${this.stylesId}`);
+        if(!styleInDOM) {
+            const styleTag = createStyle(this.stylesId, this.customStyles);
+            document.head.appendChild(styleTag);
+        }
+    }
     private randomNumber(max: number) {
         return Math.round(Math.random() * max * 2) / 2
     }
     private randomString(): string {
         const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-        let string = charset.split("").sort(() => 0.5 - Math.random()).join("").substring(Math.floor(this.randomNumber(charset.length * 0.5)));
-        if(this.specialCharacters.use) {
-            const specialsArray = this.specialCharacters.array;
-            specialsArray.forEach(char => {
-                string = this.addSpecialChar(string, char, specialsArray);
-            });
-        }
-        return string;
-    }
-    private addSpecialChar(string: string, char: string, specials: string[]): string {
-        const randomPercent = Math.floor((Math.random() * (0.7 - 0.2) + 0.2) * 100) / 100;
-        const randomIndex = Math.floor(this.randomNumber(string.length * randomPercent) + string.length * 0.15);
-        if(specials.includes(string[randomIndex])) {
-            return this.addSpecialChar(string, char, specials);
-        } else {
-            const stringArray = string.split('');
-            stringArray[randomIndex] = char;
-            string = stringArray.join('');
-            return string;
-        }
+        return charset.split("").sort(() => 0.5 - Math.random()).join("").substring(Math.floor(this.randomNumber(charset.length * 0.5)));
     }
     private createElementsFromDOM(
         elements: Element[],

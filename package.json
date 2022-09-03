@@ -4,13 +4,16 @@
 	"author": "Przemysław Dylewski <lahpolon.dev@gmail.com>",
 	"license": "MIT",
 	"scripts": {
-		"compile": "tsc && tsc --build tsconfig.es5.json",
-        "parcel": "tsc --build tsconfig.test.json && parcel test/index.html"
+		"compileStyles": "sass --style=compressed src/lib/index.rateme.scss:dist/lib/styles/index.rateme.min.css",
+		"build": "tsc && tsc --build tsconfig.es5.json && npm run compileStyles",
+		"parcel": "tsc --build tsconfig.test.json && parcel client-test/index.html"
 	},
 	"devDependencies": {
+		"sass": "^1.54.8",
 		"typescript": "^4.8.2"
 	},
 	"dependencies": {
-		"parcel": "^2.7.0"
+		"parcel": "^2.7.0",
+		"rateme-js": "^0.0.3"
 	}
 }
