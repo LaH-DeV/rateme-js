@@ -10,12 +10,12 @@ const deleteFolderRecursive = (path) => {
 			if (fs.lstatSync(curPath).isDirectory()) {
 				deleteFolderRecursive(curPath);
 			} else {
-                if(!ignoreFiles.includes(file)) {
+				if (!ignoreFiles.includes(file)) {
 					fs.unlinkSync(curPath);
-                }
+				}
 			}
 		});
-		if(path !== distDirectory) {
+		if (path !== distDirectory) {
 			fs.rmdirSync(path);
 		}
 	}

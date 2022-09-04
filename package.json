@@ -5,7 +5,7 @@
 	"license": "MIT",
 	"scripts": {
 		"clean": "node clean.js",
-		"compileStyles": "sass --style=compressed src/lib/index.rateme.scss:dist/lib/styles/index.rateme.min.css",
+		"compileStyles": "sass src/lib/index.rateme.scss:dist/lib/styles/index.rateme.min.css && node cpSourceStyles.js",
 		"build": "npm run clean && tsc && tsc --build tsconfig.es5.json && npm run compileStyles",
 		"parcel": "tsc --build tsconfig.test.json && parcel client-test/index.html"
 	},
