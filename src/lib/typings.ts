@@ -13,6 +13,13 @@ export interface RateMeConfig {
 	disableStyles: boolean;
 }
 
+export interface RMConfig extends Partial<RateMeConfig> {
+	paths?: {
+		rating?: string;
+		cancel?: string;
+	}
+}
+
 export interface RateMeClasses {
 	active: { emptyClass: string; halfClass: string; fullClass: string };
 	nullish: { equalZero: string; aboveZero: string };

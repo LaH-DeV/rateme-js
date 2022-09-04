@@ -1,4 +1,4 @@
-import { RateMeConfig, RateMeInstance } from "./typings";
+import { RateMeConfig, RateMeInstance, RMConfig } from "./typings";
 import { RateMeElementor } from "./rateme-elementor";
 import { RateMeSVG } from "./rateme-svg";
 import { RateMeSupporter as Support } from "./rateme-support";
@@ -43,7 +43,12 @@ export class RateMe implements RateMeConfig, RateMeInstance {
 			cancel: "m5.76 4.08L2.8922 5.2678 8.4243 10.8 4.08 15.84 5.2678 18.7078 10.8 13.1757 16.3322 18.7078 17.52 15.84 13.1757 10.8 18.7078 5.2678 15.84 4.08 10.8 8.4243z",
 		},
 	};
-	constructor(config?: Partial<RateMeConfig>) {
+	constructor(config?: RMConfig) {
+		const isBrowser = typeof window === "object" && typeof document === "object";
+		if (!isBrowser) {
+			console.error("This script should only be run in a browser environment!");
+			return;
+		}
 		if (config) {
 			if (config.maxValue != null && typeof config.maxValue === "number") {
 				this.maxValue = Support.roundAndBound(config.maxValue, "full", 100, 1);
@@ -84,6 +89,19 @@ export class RateMe implements RateMeConfig, RateMeInstance {
 			if (config.disableStyles != null && typeof config.disableStyles === "boolean") {
 				this.disableStyles = config.disableStyles;
 				delete config.disableStyles;
+			}
+			if ((config.paths != null && typeof config?.paths?.rating === "string") || config?.paths?.cancel === "string") {
+				if (typeof config.paths.rating === "string") {
+					this.svgs.paths.rating = config.paths.rating;
+					delete config.paths.rating;
+				}
+				if (typeof config.paths.cancel === "string") {
+					this.svgs.paths.cancel = config.paths.cancel;
+					delete config.paths.cancel;
+				}
+				if (Object.keys(config.paths).length === 0) {
+					delete config.paths;
+				}
 			}
 			if (Object.keys(config).length > 0) {
 				console.warn("class RateMe: some of the given properties were incorrect and therefore not used: ", config);
@@ -134,10 +152,10 @@ export class RateMe implements RateMeConfig, RateMeInstance {
 			container.appendChild(rating);
 		}
 	}
-	public rate(input: HTMLInputElement, container: HTMLElement, id?: string, initialValue: number = 0): void {
+	public rate(input: HTMLInputElement, container: HTMLElement, id?: string, initialValue: number = 0): string {
 		if (!input || input.tagName !== "INPUT" || input.type !== "hidden") throw new TypeError("class RateMe: [input: HTMLInputElement][type='hidden'] for 'rate' method was not provided.");
 		if (!container || !container.tagName) throw new TypeError("class RateMe: [container: HTMLElement] for 'rate' method was not provided.");
-		if (!id) {
+		if (id == null || typeof id !== "string") {
 			id = Support.randomString();
 		}
 		const wrappedRating = this.elementor.createPostRating(Support.roundAndBound(initialValue));
@@ -148,6 +166,7 @@ export class RateMe implements RateMeConfig, RateMeInstance {
 		this.addEventToWrapper(wrappedRating);
 		this.addEventsToElements(wrappedRating);
 		container.appendChild(wrappedRating);
+		return id;
 	}
 	public clear(id: string, required?: boolean): void {
 		const form = document.querySelector(`.${this.classes.base.element}.${this.classes.base.form}#${id}`);
@@ -172,6 +191,13 @@ export class RateMe implements RateMeConfig, RateMeInstance {
 			throw new TypeError(`class RateMe: Element found with id: ${id} has no supported children.`);
 		}
 	}
+
+	public ratingHTML(rating: number): string {
+		const { iconSpacing, iconSize } = this;
+		const elementConfig = { fromDOM: false, iconSpacing, wrapperElement: undefined, iconSize };
+		return this.elementor.createViewRating({ ...elementConfig, value: rating }).outerHTML;
+	}
+
 	private prepareStyles(): void {
 		const styleInDOM = document.querySelector(`#${this.stylesId}`);
 		if (!styleInDOM) {
