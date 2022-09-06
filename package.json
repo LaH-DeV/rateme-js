@@ -15,6 +15,6 @@
 	},
 	"dependencies": {
 		"parcel": "^2.7.0",
-		"rateme-js": "^0.0.4"
+		"rateme-js": "^0.0.6"
 	}
 }

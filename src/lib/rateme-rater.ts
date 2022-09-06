@@ -3,7 +3,7 @@ import { RateMeElementor } from "./rateme-elementor";
 import { RateMeSVG } from "./rateme-svg";
 import { RateMeSupporter as Support } from "./rateme-support";
 import { createStyle } from "./rateme-styles";
-export class RateMe implements RateMeConfig, RateMeInstance {
+export class RateMeRater implements RateMeConfig, RateMeInstance {
 	readonly maxValue: number = 5;
 	readonly iconSpacing: number = 6;
 	readonly iconSize: number = 20;
@@ -133,21 +133,19 @@ export class RateMe implements RateMeConfig, RateMeInstance {
 		}
 	}
 
-	public render(config: { value?: number; fromDOM?: boolean; container?: HTMLElement; filter?: { exclude?: boolean; selectors?: string[]; container?: HTMLElement } }): void {
+	public render(config: { value?: number; fromDOM?: boolean; container?: HTMLElement; exclude?: boolean; selectors?: string[]; }): void {
 		if (!config) throw new TypeError("class RateMe: config for 'render' method was not provided.");
-		const { value, fromDOM, filter, container } = config;
-		if (value == null && fromDOM == null) throw new TypeError("class RateMe: config for 'render' method should have [value: number] or [fromDOM: boolean] property defined.");
-		if (value != null && typeof value !== "number") throw new TypeError("class RateMe: config for 'render' method should have [value: number] or [fromDOM: boolean] property defined.");
-		if (fromDOM != null && typeof fromDOM !== "boolean") throw new TypeError("class RateMe: config for 'render' method should have [value: number] or [fromDOM: boolean] property defined.");
+		const { value, fromDOM, selectors, exclude, container } = config;
+		if (value == null && fromDOM == null) throw new TypeError("class RateMe: config for 'render' method should have [value: number] or [selectors: string[]] property defined.");
+		if (value != null && typeof value !== "number") throw new TypeError("class RateMe: config for 'render' method should have [value: number] or [selectors: string[]] property defined.");
+		if (fromDOM != null && typeof fromDOM !== "boolean") throw new TypeError("class RateMe: config for 'render' method should have [value: number] or [selectors: string[]] property defined.");
 		const elementConfig = { value: value ?? 0, fromDOM: fromDOM ?? false, iconSpacing: this.iconSpacing, wrapperElement: undefined, iconSize: this.iconSize };
 		if (fromDOM) {
-			const elements = this.elementor.findRatingElements(filter);
+			const elements = this.elementor.findRatingElements({selectors: selectors, exclude: exclude, container: container});
 			this.createElementsFromDOM(elements, elementConfig);
 		} else {
-			if (!container || !container.tagName) throw new TypeError("class RateMe: config for 'render' method should have [container: HTMLElement] property defined when [fromDOM !== true].");
-			if (value && !Number.isNaN(value)) {
-				elementConfig.value = Support.roundAndBound(value);
-			}
+			if (!container || !container.tagName) throw new TypeError("class RateMe: config for 'render' method should have [container: HTMLElement] property defined when is rendered from script values.");
+			elementConfig.value = Support.roundAndBound(value);
 			const rating = this.elementor.createViewRating(elementConfig);
 			container.appendChild(rating);
 		}
@@ -285,6 +283,15 @@ export class RateMe implements RateMeConfig, RateMeInstance {
 				}
 			}
 		});
+	}
+	public templateHTML(templateType: "rating" | "cancel"): string {
+		if(templateType === "rating" || templateType === "cancel") {
+			const svgCreator = new RateMeSVG({ ...this.svgs });
+			const template = svgCreator.createSVGTemplate({ svgType: templateType, gradientColors: { firstColor: this.gradientFirst, secondColor: this.gradientSecond } });
+			return template.outerHTML;
+		} else {
+			throw new Error("class RateMe: 'templateType' argument for 'templateHTML' method should have value 'rating' or 'cancel'");
+		}
 	}
 	private checkAndPushTemplate(templateString: "rating" | "cancel"): void {
 		const templateDOM = document.querySelector(`symbol#${this.svgs.templateId[templateString]}`);

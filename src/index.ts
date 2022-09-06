@@ -1,1 +1,1 @@
-export { RateMe } from "./lib/rateme-rater";
+export { RateMe, RMConfig } from "./lib/rateme";

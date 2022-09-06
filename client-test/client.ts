@@ -1,10 +1,10 @@
-// import { RateMe } from "rateme-js";
-import { RateMe } from "../dist/lib/es6/index"; // when testing locally
+// import { RateMe, RMConfig } from "rateme-js";
+import { RateMe, RMConfig } from "../dist/lib/es6/index"; // when testing locally
 
 const container = document.getElementById("container-rate")!;
 const input = document.querySelector("input")!;
 
-const config = {
+const config: RMConfig = {
 	maxValue: 5,
 	iconSize: 55,
 	iconSpacing: 6,
@@ -16,12 +16,8 @@ const config = {
 
 const rater = new RateMe(config);
 rater.rate(input, container);
-rater.render({
-	fromDOM: true,
-	filter: {
-		selectors: ["rateme", "test"],
-	},
-});
+rater.render({selectors: ["rateme"]});
+rater.render({value: 4.5, container: container});
 
 container.insertAdjacentHTML("beforeend", rater.ratingHTML(4.5)); // method for svelte etc.
 
