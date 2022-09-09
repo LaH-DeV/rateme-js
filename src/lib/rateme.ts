@@ -2,20 +2,20 @@ import { RateMeRater } from "./rateme-rater";
 import { RMConfig } from "./typings";
 
 /**
- * @description todo
- * @param {number} [maxValue] - optional todo
- * @param {number} [iconSpacing] - optional todo
- * @param {number} [iconSize] - optional todo
- * @param {boolean} [allowAnimations] - optional todo
- * @param {boolean} [withCancel] - optional todo
- * @param {boolean} [disableStyles] - optional todo
- * @param {string} [strokeColor] - optional todo
- * @param {string} [strokeStyle] - optional todo
- * @param {string} [gradientFirst] - optional todo
- * @param {string} [gradientSecond] - optional todo
- * @param {object} [paths] - optional todo
- * @property {string} [paths.rating] - optional todo
- * @property {string} [paths.cancel] - optional todo
+ * @description RateMe class
+ * @param {number} [maxValue] - optional max rating value
+ * @param {number} [iconSpacing] - optional spacing between icons [px] 
+ * @param {number} [iconSize] - optional icon size [px]
+ * @param {boolean} [allowAnimations] - optional as name suggests
+ * @param {boolean} [withCancel] - optional with cancel icon (nullish input value)
+ * @param {boolean} [disableStyles] - optional disabling library default styling
+ * @param {string} [strokeColor] - optional svg stroke color
+ * @param {string} [strokeStyle] - optional svg stroke style
+ * @param {string} [gradientFirst] - optional svg gradient - first color
+ * @param {string} [gradientSecond] - optional svg gradient - second color
+ * @param {object} [paths] - optional custom svg icon paths
+ * @property {string} [paths.rating] - optional svg rating icon path
+ * @property {string} [paths.cancel] - optional svg cancel icon path
  * @external Documentation 
  * @see {@link https://github.com/LaH-DeV/rateme-js/#readme Documentation}
  */
@@ -68,6 +68,16 @@ class RateMe {
 	 */
 	public rate(input: HTMLInputElement, container: HTMLElement, id?: string, initialValue: number = 0): string {
 		return this.instance.rate(input, container, id, initialValue);
+	}
+
+	/**
+ 	 * @example update(id, 5);
+	 * @param {string} id - required argument for identification of 'rating-form instance'.
+	 * @param {number} rating - required argument for setting new value'.
+	 * @description Updates rating to given rating.
+	 */
+	public update(id: string, rating: number): void {
+		this.instance.update(id, rating);
 	}
 
 	/**

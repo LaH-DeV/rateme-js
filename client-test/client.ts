@@ -15,9 +15,19 @@ const config: RMConfig = {
 };
 
 const rater = new RateMe(config);
-rater.rate(input, container);
+const id = rater.rate(input, container);
 rater.render({selectors: ["rateme"]});
 rater.render({value: 4.5, container: container});
+
+setTimeout(() => {
+	rater.update(id, 2);
+	console.log("updated to:", 2);
+	setTimeout(() => {
+		rater.clear(id);
+		console.log("cleared");
+	}, 5000);
+}, 5000);
+
 
 container.insertAdjacentHTML("beforeend", rater.ratingHTML(4.5)); // method for svelte etc.
 

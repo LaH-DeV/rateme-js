@@ -24,7 +24,7 @@ export class RateMeSupporter {
 		return Math.round(Math.random() * max * 2) / 2;
 	}
 	public static randomString(): string {
-		const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+		const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		return charset
 			.split("")
 			.sort(() => 0.5 - Math.random())

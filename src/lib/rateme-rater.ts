@@ -150,6 +150,7 @@ export class RateMeRater implements RateMeConfig, RateMeInstance {
 			container.appendChild(rating);
 		}
 	}
+
 	public rate(input: HTMLInputElement, container: HTMLElement, id?: string, initialValue: number = 0): string {
 		if (!input || input.tagName !== "INPUT" || input.type !== "hidden") throw new TypeError("class RateMe: [input: HTMLInputElement][type='hidden'] for 'rate' method was not provided.");
 		if (!container || !container.tagName) throw new TypeError("class RateMe: [container: HTMLElement] for 'rate' method was not provided.");
@@ -166,27 +167,23 @@ export class RateMeRater implements RateMeConfig, RateMeInstance {
 		container.appendChild(wrappedRating);
 		return id;
 	}
+	
+	public update(id: string, rating: number): void {
+		if (rating == null) throw new TypeError("class RateMe: [rating: number] for 'update' should be a valid number.");
+		const form: HTMLDivElement = document.querySelector(`.${this.classes.base.element}.${this.classes.base.form}#${id}`);
+		if (!form) throw new TypeError("class RateMe: [id: string] for 'update' should be valid rateme-form id.");
+		this.handleSVGClasses(rating, form);
+		this.selectRating(rating, form);
+	}
+
 	public clear(id: string, required?: boolean): void {
-		const form = document.querySelector(`.${this.classes.base.element}.${this.classes.base.form}#${id}`);
+		const form: HTMLDivElement = document.querySelector(`.${this.classes.base.element}.${this.classes.base.form}#${id}`);
 		if (!form) throw new TypeError("class RateMe: [id: string] for 'clear' should be valid rateme-form id.");
-		const elements = Array.from(form.querySelectorAll(`.${this.classes.base.icon}`));
-		if (elements && elements.length > 0) {
-			elements.forEach((element) => {
-				let classList = this.classes.base.icon;
-				if (element.classList.contains(this.classes.nullish.aboveZero) || element.classList.contains(this.classes.nullish.equalZero)) {
-					classList += " " + this.classes.nullish.equalZero;
-				}
-				element.classList.value = classList;
-			});
-			const input = form.querySelector("input") as HTMLInputElement;
-			if (input) {
-				input.classList.value = this.classes.input.empty;
-				input.value = required ? "0" : "";
-			}
-			form.setAttribute(this.attributes.value.name, "0");
-			form.firstElementChild?.setAttribute(this.attributes.value.name, "0");
-		} else {
-			throw new TypeError(`class RateMe: Element found with id: ${id} has no supported children.`);
+		this.update(id, 0);
+		const input = form.querySelector("input") as HTMLInputElement;
+		if (input) {
+			input.classList.value = this.classes.input.empty;
+			input.value = required ? "0" : "";
 		}
 	}
 
