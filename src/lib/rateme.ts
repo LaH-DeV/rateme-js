@@ -16,6 +16,13 @@ import { RMConfig } from "./typings";
  * @param {object} [paths] - optional custom svg icon paths
  * @property {string} [paths.rating] - optional svg rating icon path
  * @property {string} [paths.cancel] - optional svg cancel icon path
+ * @param {object} [ariaLabels] - optional custom aria labels
+ * @property {string} [ariaLabels.default] - optional, default aria label for missing values
+ * @property {object} [ariaLabels.rated] - optional, custom aria labels for view-elements
+ * @property {string} [ariaLabels.rated.value] - optional aria label value, example: {0: 'zero out of #', 1: '$ out of #'}
+ * @property {object} [ariaLabels.rater] - optional, custom aria labels for rate-elements
+ * @property {string} [ariaLabels.rater.main] - optional main form aria label value, example: 'Rate this item out of five stars'
+ * @property {string} [ariaLabels.rater.value] - optional aria label value, example: {1: '$ star out of five stars'}
  * @external Documentation 
  * @see {@link https://github.com/LaH-DeV/rateme-js/#readme Documentation}
  */

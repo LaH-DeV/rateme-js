@@ -1,4 +1,4 @@
-import { RateMeConfig, RateMeInstance, RMConfig } from "./typings";
+import { RateMeConfig, RateMeInstance, RMConfig, RateMeAriaLabels } from "./typings";
 import { RateMeElementor } from "./rateme-elementor";
 import { RateMeSVG } from "./rateme-svg";
 import { RateMeSupporter as Support } from "./rateme-support";
@@ -15,12 +15,20 @@ export class RateMeRater implements RateMeConfig, RateMeInstance {
 	readonly strokeStyle: string = "stroke-opacity: 0.3;";
 	readonly disableStyles: boolean = false;
 	readonly stylesId: string = "rateme-stylesheet";
-	readonly elementor: RateMeElementor;
+	readonly inputEventName: string = "rated";
+	readonly elementor!: RateMeElementor;
+	readonly ariaLabels: RateMeAriaLabels = {
+		rated: {},
+		rater: {
+			main: "Rate this item out of # stars"
+		},
+		default: "$ out of # stars",
+	};
 	readonly classes = {
 		active: { emptyClass: "rateme-null-score", halfClass: "rateme-half-score", fullClass: "rateme-full-score" },
 		nullish: { equalZero: "rateme-equal-zero-score", aboveZero: "rateme-above-zero-score" },
 		parts: { base: "rateme-part", half: "rateme-half", full: "rateme-full" },
-		base: { wrapper: "rateme-wrapper", element: "rateme-element", rating: "rateme-rating", icon: "rateme-icon", form: "rateme-form" },
+		base: { wrapper: "rateme-wrapper", element: "rateme-element", rating: "rateme-rating", icon: "rateme-icon", form: "rateme-form", anims: "rateme-animated" },
 		input: { empty: "rateme-empty", filled: "rateme-filled" },
 	};
 	readonly attributes = {
@@ -28,9 +36,8 @@ export class RateMeRater implements RateMeConfig, RateMeInstance {
 		value: { name: "data-rm-value", value: 0 },
 		max: { name: "data-rm-max-value", value: 0.5 },
 		min: { name: "data-rm-min-value", value: 0 },
-		anims: { name: "data-rm-animations", value: "true" },
 		size: { name: "data-rm-size", value: "" },
-		ignore: { name: "data-rm-ignore", value: "true" },
+		ignore: { name: "data-rm-ignore", value: "create" },
 	};
 	readonly svgs = {
 		gradientId: "rateme-gradient",
@@ -103,6 +110,23 @@ export class RateMeRater implements RateMeConfig, RateMeInstance {
 					delete config.paths;
 				}
 			}
+			if (config.ariaLabels != null && typeof config.ariaLabels === "object" && (config.ariaLabels.rated != null || config.ariaLabels.rater != null)) {
+				if(typeof config.ariaLabels.rated === "object") {
+					this.ariaLabels.rated = Object.assign({}, this.ariaLabels.rated, config.ariaLabels.rated);
+					delete config.ariaLabels.rated;
+				}
+				if(typeof config.ariaLabels.rater === "object") {
+					this.ariaLabels.rater = {...config.ariaLabels.rater, main: config.ariaLabels.rater.main ?? this.ariaLabels.rater.main};
+					delete config.ariaLabels.rater;
+				}
+				if(typeof config.ariaLabels.default === "string") {
+					this.ariaLabels.default = config.ariaLabels.default;
+					delete config.ariaLabels.default;
+				}
+				if (Object.keys(config.ariaLabels).length === 0) {
+					delete config.ariaLabels;
+				}
+			}
 			if (Object.keys(config).length > 0) {
 				console.warn("class RateMe: some of the given properties were incorrect and therefore not used: ", config);
 			}
@@ -119,6 +143,7 @@ export class RateMeRater implements RateMeConfig, RateMeInstance {
 				strokeColor: this.strokeColor,
 				strokeStyle: this.strokeStyle,
 				disableStyles: this.disableStyles,
+				ariaLabels: this.ariaLabels
 			},
 			this.classes,
 			this.attributes,
@@ -145,7 +170,7 @@ export class RateMeRater implements RateMeConfig, RateMeInstance {
 			this.createElementsFromDOM(elements, elementConfig);
 		} else {
 			if (!container || !container.tagName) throw new TypeError("class RateMe: config for 'render' method should have [container: HTMLElement] property defined when is rendered from script values.");
-			elementConfig.value = Support.roundAndBound(value);
+			elementConfig.value = Support.roundAndBound(value ?? 0);
 			const rating = this.elementor.createViewRating(elementConfig);
 			container.appendChild(rating);
 		}
@@ -159,7 +184,7 @@ export class RateMeRater implements RateMeConfig, RateMeInstance {
 		}
 		const wrappedRating = this.elementor.createPostRating(Support.roundAndBound(initialValue));
 		wrappedRating.setAttribute("id", id);
-		wrappedRating.classList.add(this.classes.base.form);
+		wrappedRating.classList.add(this.elementor.classForm);
 		input.classList.add(initialValue > 0 ? this.classes.input.filled : this.classes.input.empty);
 		wrappedRating.appendChild(input);
 		this.addEventToWrapper(wrappedRating);
@@ -170,14 +195,14 @@ export class RateMeRater implements RateMeConfig, RateMeInstance {
 	
 	public update(id: string, rating: number): void {
 		if (rating == null) throw new TypeError("class RateMe: [rating: number] for 'update' should be a valid number.");
-		const form: HTMLDivElement = document.querySelector(`.${this.classes.base.element}.${this.classes.base.form}#${id}`);
+		const form = document.querySelector(`.${this.elementor.classElement}.${this.elementor.classForm}#${id}`) as HTMLDivElement;
 		if (!form) throw new TypeError("class RateMe: [id: string] for 'update' should be valid rateme-form id.");
 		this.handleSVGClasses(rating, form);
 		this.selectRating(rating, form);
 	}
 
 	public clear(id: string, required?: boolean): void {
-		const form: HTMLDivElement = document.querySelector(`.${this.classes.base.element}.${this.classes.base.form}#${id}`);
+		const form = document.querySelector(`.${this.elementor.classElement}.${this.elementor.classForm}#${id}`) as HTMLDivElement;
 		if (!form) throw new TypeError("class RateMe: [id: string] for 'clear' should be valid rateme-form id.");
 		this.update(id, 0);
 		const input = form.querySelector("input") as HTMLInputElement;
@@ -202,21 +227,28 @@ export class RateMeRater implements RateMeConfig, RateMeInstance {
 	}
 	private createElementsFromDOM(elements: Element[], elementConfig: { value: number; fromDOM: boolean; iconSpacing: number; wrapperElement: Element | undefined; iconSize: number }): void {
 		elements.forEach((element) => {
-			const value = Number(element.getAttribute(this.attributes.value.name));
+			const value = Number(element.getAttribute(this.elementor.valueAttribute));
 			if (!Number.isNaN(value)) {
 				const roundedValue = Support.roundAndBound(value);
-				if (roundedValue !== value) {
-					element.setAttribute(this.attributes.value.name, roundedValue.toString());
-				}
 				elementConfig.value = roundedValue;
 				elementConfig.wrapperElement = element;
+				const rating = this.elementor.createViewRating(elementConfig);
+				this.setupElementFromDOM(element, value, roundedValue);
+				element.appendChild(rating);
 			}
-			const rating = this.elementor.createViewRating(elementConfig);
-			element.appendChild(rating);
 		});
 	}
+	private setupElementFromDOM(element: Element, value: number, roundedValue: number) {
+		if (roundedValue !== value) {
+			this.elementor.setValueAttribute(element, roundedValue.toString());
+		}
+		const ariaLabel = this.elementor.prepareAriaLabel(this.elementor.getRatedAriaLabels(roundedValue), { low: roundedValue, max: this.maxValue });
+		this.elementor.setAriaLabel(element, ariaLabel);
+		this.elementor.setAriaRole(element, "img");
+		this.elementor.setIgnoreAttribute(element, "creation");
+	}
 	private addEventsToElements(wrappedRating: HTMLDivElement): void {
-		const ratingElements = wrappedRating.querySelectorAll(`.${this.classes.parts.base}`);
+		const ratingElements = wrappedRating.querySelectorAll(`.${this.elementor.classParts}`);
 		ratingElements.forEach((element) => {
 			element.addEventListener("click", (e) => {
 				this.elementEventHandler(e, wrappedRating);
@@ -229,7 +261,7 @@ export class RateMeRater implements RateMeConfig, RateMeInstance {
 	private elementEventHandler(event: Event, wrappedRating?: HTMLDivElement): void {
 		const targetElement = event.target as HTMLDivElement;
 		if (!targetElement) return;
-		const score = Number(targetElement.getAttribute(this.attributes.value.name));
+		const score = Number(targetElement.getAttribute(this.elementor.valueAttribute));
 		if (score == null || Number.isNaN(score)) return;
 		const wrapper = this.elementor.findWrapper(targetElement);
 		if (wrapper) {
@@ -240,21 +272,39 @@ export class RateMeRater implements RateMeConfig, RateMeInstance {
 		}
 	}
 	private selectRating(score: number, wrapperElement: HTMLDivElement): void {
-		const { empty, filled } = this.classes.input;
 		const inputElement = wrapperElement.querySelector("input") as HTMLInputElement;
 		if (wrapperElement && inputElement) {
-			wrapperElement.setAttribute(this.attributes.value.name, score.toString());
-			inputElement.classList.remove(score > 0 ? empty : filled);
-			inputElement.classList.add(score > 0 ? filled : empty);
-			const ratedEvent = new CustomEvent("rated", { detail: score });
-			const inputValue = score > 0 ? score : this.withCancel ? "" : 0;
-			inputElement.dispatchEvent(ratedEvent);
-			inputElement.value = inputValue.toString();
+			this.elementor.setValueAttribute(wrapperElement, score.toString());
+			this.handleInputSelect(inputElement, score);
+			this.handleAriaChecked(wrapperElement, score);
+		}
+	}
+	private handleInputSelect(inputElement: HTMLInputElement, score: number) {
+		const { empty, filled } = this.classes.input;
+		inputElement.classList.remove(score > 0 ? empty : filled);
+		inputElement.classList.add(score > 0 ? filled : empty);
+		const ratedEvent = new CustomEvent<number>(this.inputEventName, { detail: score });
+		const inputValue = score > 0 ? score : this.withCancel ? "" : 0;
+		inputElement.dispatchEvent(ratedEvent);
+		inputElement.value = inputValue.toString();
+	}
+	private handleAriaChecked(wrapperElement: HTMLDivElement, score: number) {
+		const checked = wrapperElement.querySelectorAll(`[aria-checked="true"]`);
+		if(checked != null) {
+			checked.forEach(checkedElement => {
+				if(checked && Number(checkedElement.getAttribute(this.elementor.valueAttribute)) !== score) {
+					this.elementor.setAriaChecked(checkedElement, "false");
+				}
+			});
+		}
+		const rating = wrapperElement.querySelector(`div.${this.elementor.classRating} [${this.elementor.valueAttribute}="${score}"]`);
+		if(rating) {
+			this.elementor.setAriaChecked(rating, "true");
 		}
 	}
 	private addEventToWrapper(wrappedRating: HTMLDivElement): void {
 		wrappedRating.addEventListener("mouseleave", (_) => {
-			const score = Number(wrappedRating.getAttribute(this.attributes.value.name));
+			const score = Number(wrappedRating.getAttribute(this.elementor.valueAttribute));
 			if (score != null && !Number.isNaN(score)) {
 				this.handleSVGClasses(score, wrappedRating);
 			}
@@ -262,11 +312,11 @@ export class RateMeRater implements RateMeConfig, RateMeInstance {
 	}
 	private handleSVGClasses(score: number, wrapper: HTMLDivElement): void {
 		const { emptyClass, halfClass, fullClass } = this.classes.active;
-		const ratings = Array.from(wrapper.querySelectorAll(`div.${this.classes.base.rating}`));
+		const ratings = Array.from(wrapper.querySelectorAll(`div.${this.elementor.classRating}`));
 		ratings.forEach((rating) => {
-			const lowerBound = Number(rating.getAttribute(this.attributes.min.name));
-			const upperBound = Number(rating.getAttribute(this.attributes.max.name));
-			const iconElement = rating.querySelector(`.${this.classes.base.icon}`);
+			const lowerBound = Number(rating.getAttribute(this.elementor.minAttribute));
+			const upperBound = Number(rating.getAttribute(this.elementor.maxAttribute));
+			const iconElement = rating.querySelector(`.${this.elementor.classIcon}`);
 			if (!iconElement) return;
 			if (lowerBound === 0) {
 				const { aboveZero, equalZero } = this.classes.nullish;

@@ -23,6 +23,7 @@ export class RateMeSupporter {
 	public static randomNumber(max: number): number {
 		return Math.round(Math.random() * max * 2) / 2;
 	}
+
 	public static randomString(): string {
 		const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		return charset

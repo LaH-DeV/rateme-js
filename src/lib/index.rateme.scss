@@ -78,7 +78,7 @@
 		}
 	}
 
-	&[data-rm-animations="true"] {
+	&.rateme-anims {
 		.rateme-icon {
 			&.rateme-full-score {
 				animation: stretch-bounce 0.5s ease-in-out;

@@ -7,7 +7,8 @@
 		"clean": "node clean.js",
 		"compileStyles": "sass src/lib/index.rateme.scss:dist/lib/styles/index.rateme.min.css && node cpSourceStyles.js",
 		"build": "npm run clean && tsc && tsc --build tsconfig.es5.json && npm run compileStyles",
-		"parcel": "tsc --build tsconfig.test.json && parcel client-test/index.html"
+		"parcel": "tsc --build tsconfig.test.json && parcel client-test/index.html",
+		"test": "npm run build && npm run parcel"
 	},
 	"devDependencies": {
 		"sass": "^1.54.8",

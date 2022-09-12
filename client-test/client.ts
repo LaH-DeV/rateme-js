@@ -1,8 +1,13 @@
 // import { RateMe, RMConfig } from "rateme-js";
 import { RateMe, RMConfig } from "../dist/lib/es6/index"; // when testing locally
 
-const container = document.getElementById("container-rate")!;
-const input = document.querySelector("input")!;
+const containerView = document.getElementById("view-container") as HTMLDivElement;
+const containerViewFirst = containerView.querySelector("#view-html-first") as HTMLDivElement;
+const containerViewSecond = document.querySelector("#view-html-second") as HTMLDivElement;
+const containerViewJs = containerView.querySelector("#view-js") as HTMLDivElement;
+
+const containerRate = document.getElementById("container-rate") as HTMLDivElement;
+const input = document.querySelector("input") as HTMLInputElement;
 
 const config: RMConfig = {
 	maxValue: 5,
@@ -15,20 +20,22 @@ const config: RMConfig = {
 };
 
 const rater = new RateMe(config);
-const id = rater.rate(input, container);
+
+const id = rater.rate(input, containerRate);
+
 rater.render({selectors: ["rateme"]});
-rater.render({value: 4.5, container: container});
+rater.render({selectors: ["another"], container: containerViewFirst});
+rater.render({selectors: ["test", "different"], container: containerViewSecond});
+
+rater.render({value: 4.5, container: containerViewJs});
 
 setTimeout(() => {
 	rater.update(id, 2);
-	console.log("updated to:", 2);
+	console.log(`updated ${id} to: ${2}`);
 	setTimeout(() => {
 		rater.clear(id);
-		console.log("cleared");
+		console.log(`cleared ${id}`);
 	}, 5000);
 }, 5000);
 
-
-container.insertAdjacentHTML("beforeend", rater.ratingHTML(4.5)); // method for svelte etc.
-
-console.log(rater);
+containerViewJs.insertAdjacentHTML("beforeend", rater.ratingHTML(3.5));

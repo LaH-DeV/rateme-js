@@ -1,5 +1,9 @@
 import { RateMeElementor } from "./rateme-elementor";
 
+type DeepPartial<T> = T extends object ? {
+    [P in keyof T]?: DeepPartial<T[P]>;
+} : T;
+
 export interface RateMeConfig {
 	maxValue: number;
 	iconSpacing: number;
@@ -11,9 +15,25 @@ export interface RateMeConfig {
 	strokeStyle: string;
 	withCancel: boolean;
 	disableStyles: boolean;
+	ariaLabels: RateMeAriaLabels;
 }
 
-export interface RMConfig extends Partial<RateMeConfig> {
+export interface RatedAriaLabel {
+	[value: number]: string; 
+}
+
+export interface RaterAriaLabel {
+	main: string;
+	[value: number]: string; 
+}
+
+export interface RateMeAriaLabels {
+	rated: RatedAriaLabel;
+	rater: RaterAriaLabel;
+	default: string;
+}
+
+export interface RMConfig extends DeepPartial<RateMeConfig> {
 	paths?: {
 		rating?: string;
 		cancel?: string;
@@ -24,7 +44,7 @@ export interface RateMeClasses {
 	active: { emptyClass: string; halfClass: string; fullClass: string };
 	nullish: { equalZero: string; aboveZero: string };
 	parts: { base: string; half: string; full: string };
-	base: { wrapper: string; element: string; rating: string; icon: string; form: string };
+	base: { wrapper: string; element: string; rating: string; icon: string; form: string, anims: string; };
 	input: { empty: string; filled: string };
 }
 
@@ -33,7 +53,6 @@ export interface RateMeAttributes {
 	value: { name: string; value: number };
 	max: { name: string; value: number };
 	min: { name: string; value: number };
-	anims: { name: string; value: string };
 	size: { name: string; value: string };
 	ignore: { name: string; value: string };
 }
@@ -56,4 +75,5 @@ export interface RateMeInstance {
 	svgs: RateMeSVGs;
 	stylesId: string;
 	elementor: RateMeElementor;
+	inputEventName: string;
 }

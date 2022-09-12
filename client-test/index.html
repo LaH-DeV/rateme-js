@@ -7,10 +7,25 @@
 		<title>RateMe-js client test file</title>
 	</head>
 	<body>
-		<div class="rateme-element" data-rm-value="4.5" data-rm-id="rateme"></div>
-		<div class="rateme-element" data-rm-value="2.5" data-rm-id="test"></div>
-		<div id="container-rate"></div>
-		<input type="hidden">
-		<script src="client.js" type="module"></script>
+		<div id="view-container">
+			<div id="view-html-first">
+				<div class="rateme-element" data-rm-value="0" data-rm-id="rateme"></div>
+				<div class="rateme-element rateme-anims" data-rm-value="1.5" data-rm-id="rateme"></div>
+				<div class="rateme-element" data-rm-value="2" data-rm-id="another"></div>
+				<div class="rateme-element" data-rm-value="2.5" data-rm-id="test"></div>
+			</div>
+			<div id="view-html-second">
+				<div class="rateme-element" data-rm-value="3.5" data-rm-id="rateme"></div>
+				<div class="rateme-element" data-rm-value="4" data-rm-id="different"></div>
+				<div class="rateme-element" data-rm-value="4.5" data-rm-id="test"></div>
+				<div class="rateme-element" data-rm-value="5" data-rm-id="test"></div>
+			</div>
+			<div id="view-js"></div>
+		</div>
+		<div id="form-container">
+			<div id="container-rate"></div>
+			<input type="hidden">
+		</div>
+		<script src="client.js" type="module" defer></script>
 	</body>
 </html>
